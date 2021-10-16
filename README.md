@@ -1,8 +1,37 @@
 # slops: SLow OPerating System
 
-### BUILDING
-*TODO*
-(rtfm, Read The F*\**ing Makefile)
+slops is a simple unix-like operating system, written in assembly and C.
 
-### LICENSE
-Slops is available under MIT LICENSE.
+## BUILD ISO IMAGE
+
+### 1. sync limine
+
+```bash
+git submodule update --init
+```
+
+### 2. the actual build
+
+```bash
+make
+```
+
+## BOOT THE SYSTEM
+
+```bash
+make run
+```
+
+## REMOVE ARTIFACTS
+
+```bash
+make clean
+```
+
+or if you want to remove all generated files run:
+
+```bash
+make distclean
+```
+
+Enjoy, and happy hacking ! :)
