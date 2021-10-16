@@ -1,37 +1,46 @@
-ISO_IMAGE = slops.iso
+ISO_IMAGE := slops.iso
 
-.PHONY: all
+KERNEL_DIR := kernel
+KERNEL := $(KERNEL_DIR)/kernel.elf
+
+LIMINE_DIR := limine
+LIMINE := $(LIMINE_DIR)/limine-install
+
+QEMU := qemu-system-x86_64
+QEMU_FLAGS := -M q35 -m 2G -debugcon file:debug.txt
+
+TMP_ISO_ROOT := tmp_iso_root
+
+.PHONY: all clean distclean
+
 all: $(ISO_IMAGE)
 
 run: $(ISO_IMAGE)
-	qemu-system-x86_64 -M q35 -m 2G -cdrom $(ISO_IMAGE) -debugcon file:debug.txt 
+	$(QEMU) $(QEMU_FLAGS) -cdrom $(ISO_IMAGE)
 
-limine:
-	git clone https://github.com/limine-bootloader/limine.git --branch=v2.0-branch-binary --depth=1
-	make -C limine
+$(LIMINE):
+	make -C $(LIMINE_DIR)
 
-kernel:
-	$(MAKE) -C kernel
+$(KERNEL):
+	$(MAKE) -C $(KERNEL_DIR)
 
-$(ISO_IMAGE): limine kernel
-	rm -rf iso_root
-	mkdir -p iso_root
+$(ISO_IMAGE): $(KERNEL) $(LIMINE)
+	rm -rf $(TMP_ISO_ROOT)
+	mkdir -p $(TMP_ISO_ROOT)
 	cp kernel/kernel.elf \
-		limine.cfg bg.bmp limine/limine.sys limine/limine-cd.bin limine/limine-eltorito-efi.bin iso_root/
+		limine.cfg bg.bmp limine/limine.sys limine/limine-cd.bin limine/limine-eltorito-efi.bin $(TMP_ISO_ROOT)/
 	xorriso -as mkisofs -b limine-cd.bin \
 		-no-emul-boot -boot-load-size 4 -boot-info-table \
 		--efi-boot limine-eltorito-efi.bin \
 		-efi-boot-part --efi-boot-image --protective-msdos-label \
-		iso_root -o $(ISO_IMAGE)
+		$(TMP_ISO_ROOT) -o $(ISO_IMAGE)
 	limine/limine-install $(ISO_IMAGE)
-	rm -rf iso_root
+	rm -rf $(TMP_ISO_ROOT)
 
-.PHONY: clean
 clean:
 	rm -f $(ISO_IMAGE)
-	$(MAKE) -C kernel clean
+	$(MAKE) -C $(KERNEL_DIR) clean
 
-.PHONY: distclean
 distclean: clean
-	rm -rf limine
-	$(MAKE) -C kernel distclean
+	rm -rf $(LIMINE_DIR)
+	$(MAKE) -C $(KERNEL_DIR) distclean

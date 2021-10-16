@@ -23,6 +23,8 @@ ASMFILES      := $(shell find ./arch/x86_64/ -type f -name '*.S')
 OBJ         := $(ASMFILES:.S=.o)
 HEADER_DEPS := $(ASMFILES:.S=.d)
 
+.PHONY: all clean
+
 all: $(KERNEL)
 
 $(KERNEL): $(OBJ)
@@ -33,6 +35,5 @@ $(KERNEL): $(OBJ)
 %.o: %.S
 	$(ASSEMBLER) $(ASMFLAGS) $(INTERNALASMFLAGS) $< -o $@
 
-.PHONY: clean
 clean:
 	rm -rf $(KERNEL) $(OBJ) $(HEADER_DEPS)
