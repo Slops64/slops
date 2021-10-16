@@ -18,7 +18,10 @@ all: $(ISO_IMAGE)
 run: $(ISO_IMAGE)
 	$(QEMU) $(QEMU_FLAGS) -cdrom $(ISO_IMAGE)
 
-$(LIMINE):
+$(LIMINE_DIR):
+	git clone https://github.com/limine-bootloader/limine.git --branch=v2.0-branch-binary --depth=1
+
+$(LIMINE): $(LIMINE_DIR)
 	make -C $(LIMINE_DIR)
 
 $(KERNEL):
