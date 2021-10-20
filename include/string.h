@@ -1,9 +1,8 @@
 #ifndef STRING_H
 #define STRING_H
 
-#define strcpy __builtin_strcpy
-#define strlen __builtin_strlen
-#define strcmp __builtin_strcmp
-#define memset __builtin_memset
+#include <types.h>
+
+size_t strlen(char *str);
 
 #endif // STRING_H
