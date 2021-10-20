@@ -4,3 +4,4 @@ kernel.elf
 **/*.o
 **/*.d
 limine
+.vscode

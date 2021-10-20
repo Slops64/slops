@@ -10,7 +10,7 @@ CC := gcc
 AS := $(CC)
 LD := ld
 
-ASFLAGS := 	-I./include 		\
+ASFLAGS := 	-I./kernel/include 		\
 			-m64			\
 			-c 				\
 			-g
@@ -28,7 +28,7 @@ CFLAGS := 	-ffreestanding 							\
 			-fpie                					\
 			-c 										\
 			-m64 									\
-			-I./include 							\
+			-I./kernel/include 							\
 			-Wall 									\
 			-Wextra 								\
 			-Wstrict-prototypes 					\
