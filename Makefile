@@ -8,36 +8,36 @@ export ARCH_DIR 	= arch/$(ARCH)
 export KERNEL 		= $(ARCH_DIR)/kernel.elf
 
 export CC := gcc
-export AS := gcc
+export AS := $(CC)
 export LD := ld
 
-export ASFLAGS := 	-I./include 	\
-					-m64 			\
-					-c 			\
+export ASFLAGS := 	-I$(SRCTREE)/$(ARCH_DIR)/include 	\
+				 	-I$(SRCTREE)/include 				\
+					-m64 								\
+					-c 									\
 					-g
 
-export LDFLAGS := 	-Tlinker.ld   	\
-			-nostdlib              	\
-			-zmax-page-size=0x1000 	\
-			-static                	\
-			--no-dynamic-linker    	\
-			-ztext
+export LDFLAGS := 	-nostdlib              	\
+					-zmax-page-size=0x1000 	\
+					-static                	\
+					--no-dynamic-linker    	\
+					-ztext					\
+					--oformat elf64-x86-64	\
+					-m elf_x86_64
 
-export CFLAGS := 	-c 						\
-					-m64 					\
-					-nostdlib 				\
-					-nostdinc 				\
-					-nodefaultlibs 			\
-					-fno-stack-protector 	\
-					-I./include 			\
-					-nostartfiles 			\
-					-ffreestanding 			\
-					-Wall 					\
-					-Wextra 				\
-					-Wstrict-prototypes 	\
-					-O0 					\
-					-g 						\
-					#-Werror 					
+export CFLAGS := 	-ffreestanding 							\
+					-fno-stack-protector 					\
+					-fpie                					\
+					-c 										\
+					-m64 									\
+					-I$(SRCTREE)/$(ARCH_DIR)/include 		\
+					-I$(SRCTREE)/include 					\
+					-Wall 									\
+					-Wextra 								\
+					-Wstrict-prototypes 					\
+					-O0 									\
+					-g 										\
+					-Werror 					
 
 LIMINE_DIR := limine
 LIMINE := $(LIMINE_DIR)/limine-install
@@ -47,8 +47,11 @@ QEMU_FLAGS := -M q35 -m 2G -debugcon file:debug.txt
 
 TMP_ISO_ROOT := tmp_iso_root
 
-.PHONY: all clean distclean $(KERNEL)
+.PHONY: all clean distclean
 
+# we should find better way to detect changes
+# instead of compiling each time
+# this is why you should use clean before all
 all: $(ISO_IMAGE)
 
 run: $(ISO_IMAGE)

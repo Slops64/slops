@@ -8,7 +8,7 @@ OBJ         := $(ASMSOURCES:.S=.o) $(CSOURCES:.c=.o)
 
 all: $(KERNEL)
 
-$(KERNEL): $(OBJ) $(CORE)
+$(KERNEL): linker.ld $(OBJ) $(CORE)
 	$(LD) $(LDFLAGS) $^ -o $@
 
 %.o: %.c
