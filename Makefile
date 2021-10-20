@@ -82,7 +82,7 @@ $(ISO_IMAGE): $(KERNEL) $(LIMINE)
 	rm -rf $(TMP_ISO_ROOT)
 
 clean:
-	-rm -f $(ISO_IMAGE) $(OBJ) $(KERNEL) **/*.d
+	-rm -f $(ISO_IMAGE) $(OBJ) $(KERNEL) $(HEADER_DEPS)
 
 distclean: clean
 	-rm -rf $(LIMINE_DIR)
