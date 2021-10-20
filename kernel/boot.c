@@ -4,9 +4,15 @@
 #include <common.h>
 #include <string.h>
 #include <mm.h>
+#include <idt.h>
 
 static u8 stack[8192];
 extern void *stivale2_get_tag(struct stivale2_struct *stivale2_struct, u64 id);
+
+void hello_isr(struct registers reg)
+{
+	printk("hello from irq %d\n", reg.int_no);
+}
 
 static struct stivale2_header_tag_terminal terminal_hdr_tag = {
 	.tag = {
@@ -90,6 +96,10 @@ void _start(struct stivale2_struct *stivale2_struct)
 	strcpy(buf, "test");
 	printk("%s\n", buf);
 	kfree(buf);
+
+	init_idt();
+	register_interrupt_handler(33, hello_isr);
+	asm volatile("int $33");
 
 	// We're done, just hang...
 	hlt();
