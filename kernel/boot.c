@@ -9,6 +9,14 @@
 static u8 stack[8192];
 extern void *stivale2_get_tag(struct stivale2_struct *stivale2_struct, u64 id);
 
+struct framebuffer_pixel
+{
+    uint8_t blue;
+    uint8_t green;
+    uint8_t red;
+    uint8_t __unused;
+}__attribute__((packed));
+
 void hello_isr(struct registers reg)
 {
 	printk("hello from irq %d\n", reg.int_no);
@@ -67,6 +75,7 @@ void _start(struct stivale2_struct *stivale2_struct)
 	// Let's get the terminal structure tag from the bootloader.
 	struct stivale2_struct_tag_terminal *term = stivale2_get_tag(stivale2_struct, STIVALE2_STRUCT_TAG_TERMINAL_ID);
 	struct stivale2_struct_tag_memmap *memmap = stivale2_get_tag(stivale2_struct, STIVALE2_STRUCT_TAG_MEMMAP_ID);
+	struct stivale2_struct_tag_framebuffer *fb_tag = stivale2_get_tag(stivale2_struct, STIVALE2_STRUCT_TAG_FRAMEBUFFER_ID);
 
 	// Check if the tag was actually found.
 	if (term == NULL)
@@ -79,9 +88,23 @@ void _start(struct stivale2_struct *stivale2_struct)
 	{
 		PANIC("stivale2_struct_tag_memmap expected but not been recieved");
 	}
+	if (fb_tag == NULL)
+	{
+		PANIC("Framebuffer structure tag not recieved");
+	}
 
 	// Let's get the address of the terminal write function.
 	init_console((term_write_t *)term->term_write);
+	struct framebuffer_pixel* fb = fb_tag->framebuffer_addr;
+
+	for(size_t x = 0; x < fb_tag->framebuffer_width; x++)
+	{
+    		for(size_t y = 0; y < fb_tag->framebuffer_height; y++)
+    		{
+        		size_t raw_position = x + y*fb_tag->framebuffer_width; 
+        		fb[raw_position].blue = 255; 
+    		}
+	}
 
 	for (u64 i = 0; i < memmap->entries; i++)
 	{
