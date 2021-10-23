@@ -1,5 +1,7 @@
 slops.iso
 debug.txt
-kernel/kernel.elf
+kernel.elf
 **/*.o
+**/*.d
 limine
+.vscode
