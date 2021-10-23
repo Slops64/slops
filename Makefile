@@ -22,6 +22,7 @@ LDFLAGS := 	-nostdlib              	\
 			-ztext					\
 			--oformat elf64-x86-64	\
 			-m elf_x86_64		\
+			-Tlinker.ld
 
 CFLAGS := 	-ffreestanding 							\
 			-fno-stack-protector 					\
@@ -64,7 +65,7 @@ $(LIMINE_DIR):
 $(LIMINE): $(LIMINE_DIR)
 	$(MAKE) -C $(LIMINE_DIR)
 
-$(KERNEL): linker.ld $(OBJ)
+$(KERNEL): $(OBJ)
 	$(LD) $(LDFLAGS) $^ -o $@
 
 -include $(HEADER_DEPS)
