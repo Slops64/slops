@@ -18,7 +18,7 @@ jobs:
       run: git submodule update --init
       
     - name: Install dependencies
-      run: sudo apt-get install xorriso
+      run: sudo apt-get install xorriso lld
       
     - name: Build
       run: make 
