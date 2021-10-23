@@ -6,9 +6,9 @@ CSOURCES    := $(shell find . -not \( -path './limine' -prune \) -type f -name '
 HEADER_DEPS := $(CSOURCES:.c=.d)
 OBJ         := $(ASMSOURCES:.S=.o) $(CSOURCES:.c=.o)
 
-CC := clang
+CC := gcc
 AS := $(CC)
-LD := ld.lld
+LD := ld
 
 ASFLAGS := 	-I./kernel/include 		\
 			-m64			\
@@ -22,7 +22,6 @@ LDFLAGS := 	-nostdlib              	\
 			-ztext					\
 			--oformat elf64-x86-64	\
 			-m elf_x86_64		\
-			-Tlinker.ld
 
 CFLAGS := 	-ffreestanding 							\
 			-fno-stack-protector 					\
@@ -38,7 +37,11 @@ CFLAGS := 	-ffreestanding 							\
 			-MMD 										\
 			-Werror \
 
-			--target=x86_64-none-elf			
+			--target=x86_64-pc-none-elf	\	
+			-march=x86_64 			\
+			-fno-builtin			\
+			-nostdlib			\
+			-nostdinc
 
 LIMINE_DIR := limine
 LIMINE := $(LIMINE_DIR)/limine-install
@@ -61,7 +64,7 @@ $(LIMINE_DIR):
 $(LIMINE): $(LIMINE_DIR)
 	$(MAKE) -C $(LIMINE_DIR)
 
-$(KERNEL): $(OBJ)
+$(KERNEL): linker.ld $(OBJ)
 	$(LD) $(LDFLAGS) $^ -o $@
 
 -include $(HEADER_DEPS)

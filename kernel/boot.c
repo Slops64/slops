@@ -91,7 +91,7 @@ void _start(struct stivale2_struct *stivale2_struct)
 			track_region((void *)memmap->memmap[i].base, memmap->memmap[i].length);
 		}
 	}
-
+	printk("hello");
 	char *buf = kmalloc(12);
 	strcpy(buf, "test");
 	printk("%s\n", buf);
