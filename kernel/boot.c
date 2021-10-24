@@ -4,17 +4,13 @@
 #include <common.h>
 #include <string.h>
 #include <mm.h>
+#include <gdt.h>
 #include <idt.h>
 #include <framebuffer.h>
+#include <test.h>
 
 static u8 stack[8192];
 extern void *stivale2_get_tag(struct stivale2_struct *stivale2_struct, u64 id);
-
-
-void hello_isr(struct registers reg)
-{
-	printk("hello from irq %d\n", reg.int_no);
-}
 
 static struct stivale2_header_tag_terminal terminal_hdr_tag = {
 	.tag = {
@@ -43,7 +39,7 @@ static struct stivale2_header_tag_framebuffer framebuffer_hdr_tag = {
 // This structure needs to reside in the .stivale2hdr ELF section in order
 // for the bootloader to find it. We use this __attribute__ directive to
 // tell the compiler to put the following structure in said section.
-__attribute__((section(".stivale2hdr"), used)) static struct stivale2_header stivale_hdr = {
+__section(".stivale2hdr") __used static struct stivale2_header stivale_hdr = {
 	// The entry_point member is used to specify an alternative entry
 	// point that the bootloader should jump to instead of the executable's
 	// ELF entry point. We do not care about that so we leave it zeroed.
@@ -100,15 +96,11 @@ void _start(struct stivale2_struct *stivale2_struct)
 			track_region((void *)memmap->memmap[i].base, memmap->memmap[i].length);
 		}
 	}
-	printk("hello");
-	char *buf = kmalloc(12);
-	strcpy(buf, "test");
-	printk("%s\n", buf);
-	kfree(buf);
 
-	init_idt();
-	register_interrupt_handler(33, hello_isr);
-	asm volatile("int $33");
+	gdt_init();
+	idt_init();
+
+	do_tests();
 
 	// We're done, just hang...
 	hlt();
