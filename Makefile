@@ -41,7 +41,7 @@ LIMINE_DIR := limine
 LIMINE := $(LIMINE_DIR)/limine-install
 
 QEMU := qemu-system-x86_64
-QEMU_FLAGS := -M q35 -m 2G -debugcon file:debug.txt
+QEMU_FLAGS := -M q35 -m 2G -debugcon file:debug.txt # -s -S
 
 TMP_ISO_ROOT := tmp_iso_root
 

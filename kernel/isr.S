@@ -1,153 +1,173 @@
-#define ISR_NOERRCODE(irq)   	.globl isr##irq; \
-                                isr##irq: \
-                                cli; \
-                                pushq $0; \
-                                pushq $##irq; \
-                                jmp isr_common_stub; 
+#define INTERRUPT_NAME(int_no) .quad __interrupt##int_no
 
-#define ISR_ERRCODE(irq)	.global isr##irq; \
-				isr##irq: \
-				cli; \
-				pushq $##irq; \
-				jmp isr_common_stub; 
+#define INTERRUPT_ERR(int_no)	__interrupt##int_no: \
+									pushq  $int_no; \
+									jmp __interrupt_common;
 
+#define INTERRUPT_NOERR(int_no)	__interrupt##int_no: \
+									pushq  $0; \
+									pushq  $int_no; \
+									jmp __interrupt_common;
 
-#define IRQ(i, n)	.global irq##i; \
-				irq##i: \
-				cli; \
-                pushq $0; \
-                pushq $##n; \
-				jmp irq_common_stub; 
-        
-#define PUSHQ 	pushq %rax;	\
-				pushq %rcx;	\
-				pushq %rdx;	\
-				pushq %rbx;	\
-				pushq %rsp;	\
-				pushq %rbp;	\
-				pushq %rsi;	\
-				pushq %rdi;
+#define __pusha	\
+    push %rax; \
+    push %rbx; \
+    push %rcx; \
+    push %rdx; \
+    push %rsi; \
+    push %rdi; \
+    push %rbp; \
+    push %r8; \
+    push %r9; \
+    push %r10; \
+    push %r11; \
+    push %r12; \
+    push %r13; \
+    push %r14; \
+    push %r15;
 
-#define POPQ 	popq %rdi;	\
-				popq %rsi;	\
-				popq %rbp;	\
-				popq %rsp;	\
-				popq %rbx;	\
-				popq %rdx;	\
-				popq %rcx;	\
-				popq %rax;
+#define __popa \
+    pop %r15;	\
+    pop %r14;	\
+    pop %r13;	\
+    pop %r12;	\
+    pop %r11;	\
+    pop %r10;	\
+    pop %r9;	\
+    pop %r8;	\
+    pop %rbp;	\
+    pop %rdi;	\
+    pop %rsi;	\
+    pop %rdx;	\
+    pop %rcx;	\
+    pop %rbx;	\
+    pop %rax;
 
-ISR_NOERRCODE (0)
-ISR_NOERRCODE (1)
-ISR_NOERRCODE (2)
-ISR_NOERRCODE (3)
-ISR_NOERRCODE (4)
-ISR_NOERRCODE (5)
-ISR_NOERRCODE (6)
-ISR_NOERRCODE (7)
-ISR_ERRCODE   (8)
-ISR_NOERRCODE (9)
-ISR_ERRCODE   (10)
-ISR_ERRCODE   (11)
-ISR_ERRCODE   (12)
-ISR_ERRCODE   (13)
-ISR_ERRCODE   (14)
-ISR_NOERRCODE (15)
-ISR_NOERRCODE (16)
-ISR_NOERRCODE (17)
-ISR_NOERRCODE (18)
-ISR_NOERRCODE (19)
-ISR_NOERRCODE (20)
-ISR_NOERRCODE (21)
-ISR_NOERRCODE (22)
-ISR_NOERRCODE (23)
-ISR_NOERRCODE (24)
-ISR_NOERRCODE (25)
-ISR_NOERRCODE (26)
-ISR_NOERRCODE (27)
-ISR_NOERRCODE (28)
-ISR_NOERRCODE (29)
-ISR_NOERRCODE (30)
-ISR_NOERRCODE (31)
-/*IRQ Handler*/
-IRQ (0, 32)
-IRQ (1, 33)
-IRQ (2, 34)
-IRQ (3, 35)
-IRQ (4, 36)
-IRQ (5, 37)
-IRQ (6, 38)
-IRQ (7, 39)
-IRQ (8, 40)
-IRQ (9, 41)
-IRQ (10, 42)
-IRQ (11, 43)
-IRQ (12, 44)
-IRQ (13, 45)
-IRQ (14, 46)
-IRQ (15, 47)
+.extern interrupts_handler
 
-# In isr.c
-.extern isr_handler
+# TODO: maybe we need to clear interrupts
+__interrupt_common:
+    cld
 
-# This is our common ISR stub. It saves the processor state, sets
-# up for kernel mode segments, calls the C-level fault handler,
-# and finally restores the stack frame.
-isr_common_stub:
-    PUSHQ                    # Pushes edi,esi,ebp,esp,ebx,edx,ecx,eax
+    __pusha
 
-    mov %ds, %ax               # Lower 16-bits of eax = ds.
-    push %rax                 # save the data segment descriptor
+    mov %rsp, %rdi
 
-    mov $0x10, %ax  # load the kernel data segment descriptor
-    mov %ax, %ds
-    mov %ax, %es
-    mov %ax, %fs
-    mov %ax, %gs
+    call interrupts_handler
 
-    call isr_handler
+    # mov %rax, %rsp
 
-    pop %rbx        # reload the original data segment descriptor
-    mov %bx, %ds
-    mov %bx, %es
-    mov %bx, %fs
-    mov %bx, %gs
+    __popa
 
-    POPQ                     # Pops edi,esi,ebp...
-    add $16, %rsp     # Cleans up the pushed err code and pushed ISR number
-    # todo: try to remove this
-    sti
-    iretq           # pops 5 things at once: CS, EIP, EFLAGS, SS, and ESP
- 
+    add $16, %rsp # pop errcode and int number
 
-# In isr.c
-.extern irq_handler
+    iretq
 
-# This is our common ISR stub. It saves the processor state, sets
-# up for kernel mode segments, calls the C-level fault handler,
-# and finally restores the stack frame.
-irq_common_stub:
-    PUSHQ                    # Pushes edi,esi,ebp,esp,ebx,edx,ecx,eax
+INTERRUPT_NOERR(0)
+INTERRUPT_NOERR(1)
+INTERRUPT_NOERR(2)
+INTERRUPT_NOERR(3)
+INTERRUPT_NOERR(4)
+INTERRUPT_NOERR(5)
+INTERRUPT_NOERR(6)
+INTERRUPT_NOERR(7)
+INTERRUPT_ERR(8)
+INTERRUPT_NOERR(9)
+INTERRUPT_ERR(10)
+INTERRUPT_ERR(11)
+INTERRUPT_ERR(12)
+INTERRUPT_ERR(13)
+INTERRUPT_ERR(14)
+INTERRUPT_NOERR(15)
+INTERRUPT_NOERR(16)
+INTERRUPT_ERR(17)
+INTERRUPT_NOERR(18)
+INTERRUPT_NOERR(19)
+INTERRUPT_NOERR(20)
+INTERRUPT_NOERR(21)
+INTERRUPT_NOERR(22)
+INTERRUPT_NOERR(23)
+INTERRUPT_NOERR(24)
+INTERRUPT_NOERR(25)
+INTERRUPT_NOERR(26)
+INTERRUPT_NOERR(27)
+INTERRUPT_NOERR(28)
+INTERRUPT_NOERR(29)
+INTERRUPT_ERR(30)
+INTERRUPT_NOERR(31)
 
-    mov %ds, %ax               # Lower 16-bits of eax = ds.
-    push %rax                 # save the data segment descriptor
+INTERRUPT_NOERR(32)
+INTERRUPT_NOERR(33)
+INTERRUPT_NOERR(34)
+INTERRUPT_NOERR(35)
+INTERRUPT_NOERR(36)
+INTERRUPT_NOERR(37)
+INTERRUPT_NOERR(38)
+INTERRUPT_NOERR(39)
+INTERRUPT_NOERR(40)
+INTERRUPT_NOERR(41)
+INTERRUPT_NOERR(42)
+INTERRUPT_NOERR(43)
+INTERRUPT_NOERR(44)
+INTERRUPT_NOERR(45)
+INTERRUPT_NOERR(46)
+INTERRUPT_NOERR(47)
 
-    mov $0x10, %ax  # load the kernel data segment descriptor
-    mov %ax, %ds
-    mov %ax, %es
-    mov %ax, %fs
-    mov %ax, %gs
+INTERRUPT_NOERR(127)
+INTERRUPT_NOERR(128)
 
-    call irq_handler
+.globl __interrupt_vector
 
-    pop %rbx        # reload the original data segment descriptor
-    mov %bx, %ds
-    mov %bx, %es
-    mov %bx, %fs
-    mov %bx, %gs
+__interrupt_vector:
+INTERRUPT_NAME(0)
+INTERRUPT_NAME(1)
+INTERRUPT_NAME(2)
+INTERRUPT_NAME(3)
+INTERRUPT_NAME(4)
+INTERRUPT_NAME(5)
+INTERRUPT_NAME(6)
+INTERRUPT_NAME(7)
+INTERRUPT_NAME(8)
+INTERRUPT_NAME(9)
+INTERRUPT_NAME(10)
+INTERRUPT_NAME(11)
+INTERRUPT_NAME(12)
+INTERRUPT_NAME(13)
+INTERRUPT_NAME(14)
+INTERRUPT_NAME(15)
+INTERRUPT_NAME(16)
+INTERRUPT_NAME(17)
+INTERRUPT_NAME(18)
+INTERRUPT_NAME(19)
+INTERRUPT_NAME(20)
+INTERRUPT_NAME(21)
+INTERRUPT_NAME(22)
+INTERRUPT_NAME(23)
+INTERRUPT_NAME(24)
+INTERRUPT_NAME(25)
+INTERRUPT_NAME(26)
+INTERRUPT_NAME(27)
+INTERRUPT_NAME(28)
+INTERRUPT_NAME(29)
+INTERRUPT_NAME(30)
+INTERRUPT_NAME(31)
 
-    POPQ                     # Pops edi,esi,ebp...
-    add $16, %rsp     # Cleans up the pushed err code and pushed ISR number
-    # todo: try to remove this
-    sti
-    iretq           # pops 5 things at once: CS, EIP, EFLAGS, SS, and ESP
+INTERRUPT_NAME(32)
+INTERRUPT_NAME(33)
+INTERRUPT_NAME(34)
+INTERRUPT_NAME(35)
+INTERRUPT_NAME(36)
+INTERRUPT_NAME(37)
+INTERRUPT_NAME(38)
+INTERRUPT_NAME(39)
+INTERRUPT_NAME(40)
+INTERRUPT_NAME(41)
+INTERRUPT_NAME(42)
+INTERRUPT_NAME(43)
+INTERRUPT_NAME(44)
+INTERRUPT_NAME(45)
+INTERRUPT_NAME(46)
+INTERRUPT_NAME(47)
+
+INTERRUPT_NAME(127)
+INTERRUPT_NAME(128)

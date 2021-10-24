@@ -2,32 +2,7 @@
 #define IDT_H
 
 #include <types.h>
-
-#define ISR_N 256
-
-struct idt_desc {
-	u16	limit;
-	u64	base;
-} __attribute__((packed));
-
-struct idt_gate {
-	u16	base_low;
-	u16	selector;
-	u8	reserved_ist;
-	u8	flags;
-	u16	base_mid;
-	u32	base_high;
-	u32	reserved;
-} __attribute__((packed));
-
-struct registers {
-	u64 ds;			// Data segment selector
-	u64 rdi, rsi, rbp, rsp, rbx, rdx, rcx, rax;	// Pushed by pusha.
-	u64 int_no, err_code;	// Interrupt number and error code (if applicable)
-	u64 rip, cs, eflags, useresp, ss;	// Pushed by the processor automatically.
-};
-
-typedef void (*isr_t)(struct registers);
+#include <common.h>
 
 #define IRQ0 32
 #define IRQ1 33
@@ -46,56 +21,62 @@ typedef void (*isr_t)(struct registers);
 #define IRQ14 46
 #define IRQ15 47
 
-void init_idt(void);
+#define INTGATE 0x8e
+#define TRAPGATE 0xeF
+
+#define IDT_USER 0b01100000
+
+#define IDT_ENTRY_COUNT 256
+
+struct idt_desc {
+	u16	limit;
+	u64	base;
+} __packed;
+
+struct idt_ent {
+	u16	base_low;
+	u16	cs;
+	u8	reserved_ist;
+	u8	flags;
+	u16	base_mid;
+	u32	base_high;
+	u32	reserved;
+} __packed;
+
+struct registers {
+	u64 r15;
+    u64 r14;
+    u64 r13;
+    u64 r12;
+    u64 r11;
+    u64 r10;
+    u64 r9;
+    u64 r8;
+    u64 rbp;
+    u64 rdi;
+    u64 rsi;
+    u64 rdx;
+    u64 rcx;
+    u64 rbx;
+    u64 rax;
+
+    u64 int_no;
+    u64 err;
+
+    // the interrupt stackframe
+    u64 rip;
+    u64 cs;
+    u64 rflags;
+    u64 rsp;
+    u64 ss;
+} __packed;
+
+typedef void (*isr_t)(struct registers *);
+
 void register_interrupt_handler(u8 n, isr_t handler);
 
-extern void isr0(void);
-extern void isr1(void);
-extern void isr2(void);
-extern void isr3(void);
-extern void isr4(void);
-extern void isr5(void);
-extern void isr6(void);
-extern void isr7(void);
-extern void isr8(void);
-extern void isr9(void);
-extern void isr10(void);
-extern void isr11(void);
-extern void isr12(void);
-extern void isr13(void);
-extern void isr14(void);
-extern void isr15(void);
-extern void isr16(void);
-extern void isr17(void);
-extern void isr18(void);
-extern void isr19(void);
-extern void isr20(void);
-extern void isr21(void);
-extern void isr22(void);
-extern void isr23(void);
-extern void isr24(void);
-extern void isr25(void);
-extern void isr26(void);
-extern void isr27(void);
-extern void isr28(void);
-extern void isr29(void);
-extern void isr30(void);
-extern void isr31(void);
-extern void irq0(void);
-extern void irq1(void);
-extern void irq2(void);
-extern void irq3(void);
-extern void irq4(void);
-extern void irq5(void);
-extern void irq6(void);
-extern void irq7(void);
-extern void irq8(void);
-extern void irq9(void);
-extern void irq10(void);
-extern void irq11(void);
-extern void irq12(void);
-extern void irq13(void);
-extern void irq14(void);
-extern void irq15(void);
+void idt_flush(u64);
+
+void idt_init(void);
 
 #endif // IDT_H
