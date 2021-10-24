@@ -1,4 +1,5 @@
 # slops: SLow OPerating System
+![build](https://img.shields.io/github/workflow/status/Slops64/slops/Makefile%20CI?style=flat-square)
 
 slops is a simple unix-like operating system, written in assembly and C.
 

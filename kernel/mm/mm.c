@@ -17,11 +17,6 @@ void track_region(void *start, u64 len)
 {
 	struct heap_slice *last = heap_start;
 
-	if (!start)
-		PANIC("heap start is 0");
-	if (!len)
-		PANIC("heap len is 0");
-
 	// called for the first time
 	if (!heap_start)
 		heap_start = init_slice(start, len, NULL);
