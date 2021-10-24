@@ -37,12 +37,8 @@ CFLAGS := 	-ffreestanding 							\
 			-g 										\
 			-MMD 									\
 			-Werror 								\
-
-			--target=x86_64-pc-none-elf	\	
-			-march=x86_64 			\
-			-fno-builtin			\
-			-nostdlib			\
-			-nostdinc
+			-fno-builtin							\
+			-nostdlib								
 
 LIMINE_DIR := limine
 LIMINE := $(LIMINE_DIR)/limine-install
