@@ -21,21 +21,28 @@ LDFLAGS := 	-nostdlib              	\
 			--no-dynamic-linker    	\
 			-ztext					\
 			--oformat elf64-x86-64	\
-			-m elf_x86_64
+			-m elf_x86_64			\
+			-Tlinker.ld
 
 CFLAGS := 	-ffreestanding 							\
 			-fno-stack-protector 					\
 			-fpie                					\
 			-c 										\
 			-m64 									\
-			-I./kernel/include 							\
+			-I./kernel/include 						\
 			-Wall 									\
 			-Wextra 								\
 			-Wstrict-prototypes 					\
 			-O0 									\
 			-g 										\
-			-MMD 										\
-			-Werror 					
+			-MMD 									\
+			-Werror 								\
+
+			--target=x86_64-pc-none-elf	\	
+			-march=x86_64 			\
+			-fno-builtin			\
+			-nostdlib			\
+			-nostdinc
 
 LIMINE_DIR := limine
 LIMINE := $(LIMINE_DIR)/limine-install
@@ -58,7 +65,7 @@ $(LIMINE_DIR):
 $(LIMINE): $(LIMINE_DIR)
 	$(MAKE) -C $(LIMINE_DIR)
 
-$(KERNEL): linker.ld $(OBJ)
+$(KERNEL): $(OBJ)
 	$(LD) $(LDFLAGS) $^ -o $@
 
 -include $(HEADER_DEPS)
