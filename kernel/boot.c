@@ -5,6 +5,7 @@
 #include <string.h>
 #include <mm.h>
 #include <idt.h>
+#include <framebuffer.h>
 
 static u8 stack[8192];
 extern void *stivale2_get_tag(struct stivale2_struct *stivale2_struct, u64 id);
@@ -88,6 +89,8 @@ void _start(struct stivale2_struct *stivale2_struct)
 
 	// Let's get the address of the terminal write function.
 	init_console((term_write_t *)term->term_write);
+	init_fb(fb_tag);
+	set_bg(12, 5, 59);
 
 	for (u64 i = 0; i < memmap->entries; i++)
 	{

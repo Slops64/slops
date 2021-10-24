@@ -38,6 +38,7 @@ CFLAGS := 	-ffreestanding 							\
 			-MMD 										\
 			-Werror \
 			-Wno-error=int-conversion \
+			-Wno-error=unused-parameter \
 
 			--target=x86_64-pc-none-elf	\	
 			-march=x86_64 			\
