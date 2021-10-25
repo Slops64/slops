@@ -17,6 +17,13 @@ static inline u64 get_bitmap_bit_index(u64 page_addr)
 	return page_addr%8;
 }
 
+static inline bool bitmap_is_bit_set(u64 page_addr)
+{
+	u64 bit = get_bitmap_bit_index(page_addr);
+	u64 byte = get_bitmap_array_index(page_addr);
+	return bitmap[byte] & (1 << bit);
+}
+
 static inline void bitmap_set_bit(u64 page_addr)
 {
 	u64 bit = get_bitmap_bit_index(page_addr);
@@ -88,4 +95,47 @@ bitmap_allocated:
 		bitmap_set_bit(i/PAGE_SIZE);
 	}
 	printk(" pmm -> Bitmap set up sucessfully, ready for allocations\n");
+}
+
+// TODO: Optimize find_free_pages and alloc_page
+// TODO: erro handling in the 3 functions below
+u64 find_free_pages(u64 count)
+{
+	// Maybe we could do an ASSERT to check if count is not 0
+	u64 free_count = 0;
+	for(u64 i = 0; i < (highest_page/PAGE_SIZE); i++)
+	{
+		if(!bitmap_is_bit_set(i))
+		{
+			free_count++;
+			if(free_count == count)
+			{
+				return i;
+			}
+		}
+		else
+		{
+			free_count = 0;
+		}
+	}
+	return -1;
+}
+
+void* alloc_page(u64 count)
+{
+	u64 page = find_free_pages(count);
+	for(u64 i = page; i < count+page; i++)
+	{
+		bitmap_set_bit(i);
+	}
+	return (void*)(page*PAGE_SIZE);
+}
+
+void free_page(void* page_addr, u64 page_count)
+{
+	u64 target = ((u64)page_addr) / PAGE_SIZE;
+	for(u64 i = target; i<= target+page_count; i++)
+	{
+		bitmap_clear_bit(i);
+	}
 }
