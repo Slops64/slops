@@ -75,7 +75,7 @@ $(ISO_IMAGE): $(KERNEL) $(LIMINE)
 	rm -rf $(TMP_ISO_ROOT)
 	mkdir -p $(TMP_ISO_ROOT)
 	cp $(KERNEL) \
-		limine.cfg bg.bmp limine/limine.sys limine/limine-cd.bin limine/limine-eltorito-efi.bin $(TMP_ISO_ROOT)/
+		limine.cfg limine/limine.sys limine/limine-cd.bin limine/limine-eltorito-efi.bin $(TMP_ISO_ROOT)/
 	xorriso -as mkisofs -b limine-cd.bin \
 		-no-emul-boot -boot-load-size 4 -boot-info-table \
 		--efi-boot limine-eltorito-efi.bin \
