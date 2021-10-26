@@ -10,6 +10,18 @@ CC := gcc
 AS := $(CC)
 LD := ld
 
+ifneq ($(V),)
+	SILENCE	=
+else
+	SILENCE = @
+endif
+
+SHOW_COMMAND	:= @printf "%-15s%s\n"
+SHOW_CC		:= $(SHOW_COMMAND) "[ $(CC) ]"
+SHOW_LD		:= $(SHOW_COMMAND) "[ $(LD) ]"
+SHOW_INSTALL	:= $(SHOW_COMMAND) "[ INSTALL ]"
+SHOW_CLEAN	:= $(SHOW_COMMAND) "[ CLEAN ]"
+
 ASFLAGS := 	-I./kernel/include 		\
 			-m64			\
 			-c 				\
@@ -56,36 +68,45 @@ run: $(ISO_IMAGE)
 	$(QEMU) $(QEMU_FLAGS) -cdrom $(ISO_IMAGE)
 
 $(LIMINE_DIR):
-	git clone https://github.com/limine-bootloader/limine.git --branch=v2.0-branch-binary --depth=1
+	@echo "Downloading Limine..."
+	$(SILENCE)git clone https://github.com/limine-bootloader/limine.git --branch=v2.0-branch-binary --depth=1 > /dev/null 2>&1
+
 
 $(LIMINE): $(LIMINE_DIR)
-	$(MAKE) -C $(LIMINE_DIR)
+	@echo "Building Limine..."
+	$(SILENCE)$(MAKE) -C $(LIMINE_DIR) > /dev/null 2>&1
 
 $(KERNEL): $(OBJ)
-	$(LD) $(LDFLAGS) $^ -o $@
+	$(SHOW_LD) $@
+	$(SILENCE)$(LD) $(LDFLAGS) $^ -o $@
 
 -include $(HEADER_DEPS)
 %.o: %.c
-	$(CC) $(CFLAGS) $< -o $@
+	$(SHOW_CC) $@
+	$(SILENCE)$(CC) $(CFLAGS) $< -o $@
 
 %.o: %.S
-	$(AS) $(ASFLAGS) $< -o $@
+	$(SHOW_CC) $@
+	$(SILENCE)$(AS) $(ASFLAGS) $< -o $@
 
 $(ISO_IMAGE): $(KERNEL) $(LIMINE)
-	rm -rf $(TMP_ISO_ROOT)
-	mkdir -p $(TMP_ISO_ROOT)
-	cp $(KERNEL) \
+	$(SHOW_INSTALL) $@
+	$(SILENCE)rm -rf $(TMP_ISO_ROOT)
+	$(SILENCE)mkdir -p $(TMP_ISO_ROOT)
+	$(SILENCE)cp $(KERNEL) \
 		limine.cfg limine/limine.sys limine/limine-cd.bin limine/limine-eltorito-efi.bin $(TMP_ISO_ROOT)/
-	xorriso -as mkisofs -b limine-cd.bin \
+	$(SILENCE)xorriso -as mkisofs -b limine-cd.bin \
 		-no-emul-boot -boot-load-size 4 -boot-info-table \
 		--efi-boot limine-eltorito-efi.bin \
 		-efi-boot-part --efi-boot-image --protective-msdos-label \
-		$(TMP_ISO_ROOT) -o $(ISO_IMAGE)
-	limine/limine-install $(ISO_IMAGE)
-	rm -rf $(TMP_ISO_ROOT)
+		$(TMP_ISO_ROOT) -o $(ISO_IMAGE) > /dev/null 2>&1
+	$(SILENCE)limine/limine-install $(ISO_IMAGE) > /dev/null 2>&1
+	$(SILENCE)rm -rf $(TMP_ISO_ROOT)
 
 clean:
-	-rm -f $(ISO_IMAGE) $(OBJ) $(KERNEL) $(HEADER_DEPS)
+	$(SHOW_CLEAN) $(KERNEL)
+	$(SILENCE)-rm -f $(ISO_IMAGE) $(OBJ) $(KERNEL) $(HEADER_DEPS)
 
 distclean: clean
-	-rm -rf $(LIMINE_DIR)
+	$(SHOW_CLEAN) $(LIMINE_DIR)
+	$(SILENCE)-rm -rf $(LIMINE_DIR)
