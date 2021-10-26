@@ -1,9 +1,9 @@
 #ifndef MM_H
 #define MM_H
 
-#include <types.h>
-#include <list.h>
-#include <stivale2.h>
+#include <misc/types.h>
+#include <misc/list.h>
+#include <boot/stivale2.h>
 
 #define MIN_SLICE_SIZE (sizeof(struct heap_slice) + 1)
 #define SLICE_MAGIC (0xBADBABE)

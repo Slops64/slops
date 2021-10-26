@@ -1,6 +1,6 @@
-#include <stivale2.h>
-#include <types.h>
-#include <common.h>
+#include <boot/stivale2.h>
+#include <misc/types.h>
+#include <tools/common.h>
 
 static u8 stack[8192];
 

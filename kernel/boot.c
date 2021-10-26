@@ -1,13 +1,13 @@
-#include <stivale2.h>
-#include <types.h>
-#include <console.h>
-#include <common.h>
-#include <string.h>
-#include <mm.h>
-#include <gdt.h>
-#include <idt.h>
-#include <framebuffer.h>
-#include <test.h>
+#include <boot/stivale2.h>
+#include <misc/types.h>
+#include <tools/console.h>
+#include <tools/common.h>
+#include <tools/string.h>
+#include <mm/mm.h>
+#include <cpu/gdt.h>
+#include <cpu/idt.h>
+#include <graphics/framebuffer.h>
+#include <test/test.h>
 
 extern void *stivale2_get_tag(struct stivale2_struct *stivale2_struct, u64 id);
 

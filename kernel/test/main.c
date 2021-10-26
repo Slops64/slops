@@ -1,5 +1,6 @@
-#include <common.h>
-#include <mm.h>
+#include <tools/common.h>
+#include <mm/mm.h>
+#include <test/test.h>
 
 void do_tests(void)
 {

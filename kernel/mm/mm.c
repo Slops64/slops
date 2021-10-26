@@ -1,5 +1,5 @@
-#include <mm.h>
-#include <common.h>
+#include <mm/mm.h>
+#include <tools/common.h>
 
 struct heap_slice *heap_start;
 

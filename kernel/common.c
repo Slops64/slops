@@ -1,5 +1,5 @@
-#include <common.h>
-#include <console.h>
+#include <tools/common.h>
+#include <tools/console.h>
 
 // Write a byte out to the specified port.
 void outb(u16 port, u8 value)

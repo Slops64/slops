@@ -1,7 +1,7 @@
 #ifndef GDT_H
 #define GDT_H
 
-#include <common.h>
+#include <tools/common.h>
 
 #define GDT_ENTRY_COUNT 5
 

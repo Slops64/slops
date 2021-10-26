@@ -1,8 +1,8 @@
-#include <types.h>
-#include <string.h>
-#include <console.h>
-#include <common.h>
-#include <stivale2.h>
+#include <misc/types.h>
+#include <tools/string.h>
+#include <tools/console.h>
+#include <tools/common.h>
+#include <boot/stivale2.h>
 
 static u16 width;
 static u16 height;

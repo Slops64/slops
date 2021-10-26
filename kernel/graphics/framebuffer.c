@@ -1,6 +1,6 @@
-#include <framebuffer.h>
-#include <common.h>
-#include <types.h>
+#include <graphics/framebuffer.h>
+#include <tools/common.h>
+#include <misc/types.h>
 
 struct framebuffer_pixel *fb;
 u16 fb_height;

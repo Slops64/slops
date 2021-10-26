@@ -1,4 +1,4 @@
-#include <gdt.h>
+#include <cpu/gdt.h>
 
 struct gdt_ent construct_gdt64_ent(u32 base, u32 limit, u8 granularity, u8 flags)
 {

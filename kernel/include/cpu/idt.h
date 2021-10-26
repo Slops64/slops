@@ -1,8 +1,8 @@
 #ifndef IDT_H
 #define IDT_H
 
-#include <types.h>
-#include <common.h>
+#include <misc/types.h>
+#include <tools/common.h>
 
 #define IRQ0 32
 #define IRQ1 33

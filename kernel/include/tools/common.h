@@ -1,11 +1,11 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#include <types.h>
-#include <list.h>
-#include <string.h>
-#include <console.h>
-#include <compiler.h>
+#include <misc/types.h>
+#include <misc/list.h>
+#include <tools/string.h>
+#include <tools/console.h>
+#include <tools/compiler.h>
 
 void outb(u16 port, u8 value);
 u8 inb(u16 port);

@@ -1,5 +1,5 @@
-#include <idt.h>
-#include <common.h>
+#include <cpu/idt.h>
+#include <tools/common.h>
 
 extern u64 __interrupt_vector[];
 struct idt_ent idt[IDT_ENTRY_COUNT];
