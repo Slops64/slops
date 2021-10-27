@@ -1,5 +1,6 @@
 #include <mm/mm.h>
 #include <tools/common.h>
+#include <misc/types.h>
  
 static u8 *bitmap;
 static u64 highest_page;
