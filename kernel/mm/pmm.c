@@ -70,7 +70,7 @@ void pmm_init(struct stivale2_struct_tag_memmap *memory_map)
 	}
 	printk("Unable to allocate %d bytes for the bitmap\n", bitmap_size);
 	PANIC("Could not allocate the bitmap");
-bitmap_allocated:
+bitmap_allocated: ;
 	u64 free_memory = 0;
 	memset(bitmap, 0xff, bitmap_size);
 	for(u64 i = 0; i < memory_map->entries; i++)
