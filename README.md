@@ -5,13 +5,7 @@ slops is a simple unix-like operating system, written in assembly and C.
 
 ## BUILD ISO IMAGE
 
-### 1. sync limine
-
-```bash
-git submodule update --init
-```
-
-### 2. the actual build
+### 1. build
 
 ```bash
 make
