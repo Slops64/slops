@@ -14,6 +14,7 @@
 void pmm_init(struct stivale2_struct_tag_memmap *memory_map);
 void* alloc_pages(u64 page_count);
 void free_pages(void* page_addr, u64 page_count);
+
 #define PAGE_SIZE 4096
 
 // Heap

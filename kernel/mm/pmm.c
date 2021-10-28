@@ -5,6 +5,7 @@
 static u8 *bitmap;
 static u64 highest_page;
 size_t bitmap_size;
+u64 last_free_page = 0;
 
 static inline u64 get_bitmap_array_index(u64 page_addr)
 {
@@ -95,19 +96,23 @@ bitmap_allocated:;
     printk(" pmm -> Bitmap set up sucessfully, ready for allocations\n");
 }
 
-// TODO: Optimize find_free_pages and alloc_page
-// TODO: erro handling in the 3 functions below
 u64 find_free_pages(u64 count)
 {
-    // Maybe we could do an ASSERT to check if count is not 0
+    ASSERT(count!=0);
     u64 free_count = 0;
-    for (u64 i = 0; i < (highest_page / PAGE_SIZE); i++)
+    for (u64 i = last_free_page; i < (highest_page / PAGE_SIZE); i++)
     {
+	while (bitmap[i/8] == 0xff && i < (highest_page/PAGE_SIZE)-8)
+	{
+		free_count = 0;
+		i += 8- (i % 8);
+	}
         if (!bitmap_is_bit_set(i))
         {
             free_count++;
             if (free_count == count)
             {
+		last_free_page = i;
                 return i - count - 1;
             }
         }
@@ -116,15 +121,20 @@ u64 find_free_pages(u64 count)
             free_count = 0;
         }
     }
+    if (last_free_page != 0)
+    {
+	    last_free_page =0;
+	    return find_free_pages(count);
+    }
     return -1;
 }
 
 void *alloc_pages(u64 count)
 {
     u64 pfn = find_free_pages(count);
-    if (page == 0)
+    if (pfn == 0)
     {
-	    PANIC("No free page found");
+	    PANIC("Cannot allocate pages");
     }
     for (u64 i = pfn; i < count + pfn; i++)
     {
