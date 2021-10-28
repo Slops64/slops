@@ -151,3 +151,18 @@ void free_pages(void *page_addr, u64 page_count)
         bitmap_clear_bit(i);
     }
 }
+
+void *calloc_pages(u64 page_count)
+{
+    void *allocated = alloc_pages(page_count);
+    memset(allocated, 0, page_count * PAGE_SIZE);
+    return allocated;
+}	
+
+void *realloc_pages(void *old_page, u64 newpages_count, u64 oldpages_count)
+{
+	void *new_page = alloc_pages(newpages_count);
+	memcpy(new_page, old_page, oldpages_count * PAGE_SIZE);
+	free_pages(old_page, oldpages_count);
+	return new_page;
+}
