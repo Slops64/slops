@@ -7,11 +7,13 @@
 
 #define MIN_SLICE_SIZE (sizeof(struct heap_slice) + 1)
 #define SLICE_MAGIC (0xBADBABE)
+#define ALIGN_UP(__number) (((__number) + PAGE_SIZE - 1) & ~(PAGE_SIZE - 1))
+#define ALIGN_DOWN(__number) ((__number) & ~(PAGE_SIZE - 1))
 
 // Physical memory manager
 void pmm_init(struct stivale2_struct_tag_memmap *memory_map);
-void* alloc_page(u64 page_count);
-void free_page(void* page_addr, u64 page_count);
+void* alloc_pages(u64 page_count);
+void free_pages(void* page_addr, u64 page_count);
 #define PAGE_SIZE 4096
 
 // Heap

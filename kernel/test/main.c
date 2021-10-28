@@ -11,10 +11,10 @@ void do_tests(void)
 
 	asm volatile("int $0");
 	asm volatile("int $0x10");
-	void* page = alloc_page(1);
+	void* page = alloc_pages(1);
 	strcpy(page, "test2");
 	printk("%s\n", page);
-	free_page(page, 1);
+	free_pages(page, 1);
 	printk("%s\n", page);
 	// if test2 is displayed twice, there was a problem
 }
