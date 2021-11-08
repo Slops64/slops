@@ -4,11 +4,12 @@
 
 static u8 stack[8192];
 
-__section(".stivale2hdr") __used static struct stivale2_header stivale_hdr = {
+__section(".stivale2hdr")
+__used static struct stivale2_header stivale_hdr = {
 	// use elf entry point
 	.entry_point = 0,
 	// start of the stack
-	.stack = (u64)((char *)stack + sizeof(stack)),
+	.stack = (u64) ((char *)stack + sizeof(stack)),
 	// Bit 1, if set, causes the bootloader to return to us pointers in the
 	// higher half, which we likely want.
 	// Bit 2, if set, tells the bootloader to enable protected memory ranges,
@@ -23,8 +24,7 @@ __section(".stivale2hdr") __used static struct stivale2_header stivale_hdr = {
 void *stivale2_get_tag(struct stivale2_struct *stivale2_struct, u64 id)
 {
 	struct stivale2_tag *current_tag = (void *)stivale2_struct->tags;
-	for (;;)
-	{
+	for (;;) {
 		// If the tag pointer is NULL (end of linked list), we did not find
 		// the tag. Return NULL to signal this.
 		if (current_tag == NULL)

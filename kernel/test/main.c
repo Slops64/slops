@@ -9,9 +9,9 @@ void do_tests(void)
 	printk("%s\n", buf);
 	kfree(buf);
 
-	asm volatile("int $0");
-	asm volatile("int $0x10");
-	void* page = alloc_pages(1);
+	asm volatile ("int $0");
+	asm volatile ("int $0x10");
+	void *page = alloc_pages(1);
 	strcpy(page, "test2");
 	printk("%s\n", page);
 	free_pages(page, 1);
