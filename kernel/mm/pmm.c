@@ -40,8 +40,6 @@ static inline void bitmap_clear_bit(u64 page_addr)
 
 void pmm_init(struct stivale2_struct_tag_memmap *memory_map)
 {
-    // Assert that checks if the start adress is page aligned
-    ASSERT(memory_map->memmap[1].base % PAGE_SIZE == 0);
     for (u64 i = 0; i < memory_map->entries; i++)
     {
         if (memory_map->memmap[i].type != STIVALE2_MMAP_USABLE &&
@@ -49,19 +47,23 @@ void pmm_init(struct stivale2_struct_tag_memmap *memory_map)
         {
             continue;
         }
+        // Assert that checks if the start adress is page aligned
+        ASSERT(memory_map->memmap[i].base % PAGE_SIZE == 0);
         u64 top = memory_map->memmap[i].base + memory_map->memmap[i].length;
         if (top < highest_page)
         {
             highest_page = top;
         }
     }
-    size_t bitmap_size = ALIGN_DOWN(highest_page) / PAGE_SIZE / 8;
+    size_t bitmap_size = ALIGN_UP(ALIGN_DOWN(highest_page) / PAGE_SIZE / 8);
     for (u64 i = 0; i < memory_map->entries; i++)
     {
         if (memory_map->memmap[i].type != STIVALE2_MMAP_USABLE)
         {
             continue;
         }
+        // TODO: find the smallest possible region
+        // that can contain the bitmap
         if (memory_map->memmap[i].length >= bitmap_size)
         {
             bitmap = (u8 *)(memory_map->memmap[i].base); // This may not be working
@@ -82,7 +84,7 @@ bitmap_allocated:;
         for (u64 addr = memory_map->memmap[i].base; addr < memory_map->memmap[i].base + memory_map->memmap[i].length;
              addr += PAGE_SIZE)
         {
-            bitmap_clear_bit(addr / PAGE_SIZE);
+            bitmap_clear_bit(ADDR_PFN(addr));
             free_memory += PAGE_SIZE;
         }
     }
@@ -91,28 +93,29 @@ bitmap_allocated:;
     u64 bitmap_end = bitmap_start + bitmap_size;
     for (u64 i = bitmap_start; i <= bitmap_end; i += PAGE_SIZE)
     {
-        bitmap_set_bit(i / PAGE_SIZE);
+        bitmap_set_bit(ADDR_PFN(i));
     }
     printk(" pmm -> Bitmap set up sucessfully, ready for allocations\n");
 }
 
+// TODO: refactor this
 u64 find_free_pages(u64 count)
 {
-    ASSERT(count!=0);
+    ASSERT(count != 0);
     u64 free_count = 0;
-    for (u64 i = last_free_page; i < (highest_page / PAGE_SIZE); i++)
+    for (u64 i = last_free_page; i < ADDR_PFN(highest_page); i++)
     {
-	while (bitmap[i/8] == 0xff && i < (highest_page/PAGE_SIZE)-8)
-	{
-		free_count = 0;
-		i += 8- (i % 8);
-	}
+        while (bitmap[i / 8] == 0xff && i < ADDR_PFN(highest_page) - 8)
+        {
+            free_count = 0;
+            i += 8 - (i % 8);
+        }
         if (!bitmap_is_bit_set(i))
         {
             free_count++;
             if (free_count == count)
             {
-		last_free_page = i;
+                last_free_page = i;
                 return i - count - 1;
             }
         }
@@ -123,8 +126,8 @@ u64 find_free_pages(u64 count)
     }
     if (last_free_page != 0)
     {
-	    last_free_page =0;
-	    return find_free_pages(count);
+        last_free_page = 0;
+        return find_free_pages(count);
     }
     return -1;
 }
@@ -132,20 +135,20 @@ u64 find_free_pages(u64 count)
 void *alloc_pages(u64 count)
 {
     u64 pfn = find_free_pages(count);
-    if (pfn == 0)
+    if (pfn == (u64)-1)
     {
-	    PANIC("Cannot allocate pages");
+        PANIC("Cannot allocate pages");
     }
     for (u64 i = pfn; i < count + pfn; i++)
     {
         bitmap_set_bit(i);
     }
-    return (void *)(pfn * PAGE_SIZE);
+    return PFN_ADDR(pfn);
 }
 
 void free_pages(void *page_addr, u64 page_count)
 {
-    u64 target = ((u64)page_addr) / PAGE_SIZE;
+    u64 target = ADDR_PFN(page_addr);
     for (u64 i = target; i <= target + page_count; i++)
     {
         bitmap_clear_bit(i);
@@ -157,12 +160,12 @@ void *calloc_pages(u64 page_count)
     void *allocated = alloc_pages(page_count);
     memset(allocated, 0, page_count * PAGE_SIZE);
     return allocated;
-}	
+}
 
 void *realloc_pages(void *old_page, u64 newpages_count, u64 oldpages_count)
 {
-	void *new_page = alloc_pages(newpages_count);
-	memcpy(new_page, old_page, oldpages_count * PAGE_SIZE);
-	free_pages(old_page, oldpages_count);
-	return new_page;
+    void *new_page = alloc_pages(newpages_count);
+    memcpy(new_page, old_page, oldpages_count * PAGE_SIZE);
+    free_pages(old_page, oldpages_count);
+    return new_page;
 }

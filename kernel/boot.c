@@ -36,7 +36,7 @@ void _start(struct stivale2_struct *stivale2_struct)
     for (u64 i = 0; i < memmap->entries; i++)
         if (memmap->memmap[i].type == STIVALE2_MMAP_USABLE)
         {
-            printk("usable memory = %x length = %d\n", memmap->memmap[i].base, memmap->memmap[i].length);
+            printk("usable memory = %x length = %x\n", memmap->memmap[i].base, memmap->memmap[i].length);
             track_region((void *)memmap->memmap[i].base, memmap->memmap[i].length);
         }
 
