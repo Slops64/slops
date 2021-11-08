@@ -1,4 +1,5 @@
 #include <misc/types.h>
+#include <misc/bitmap.h>
 #include <mm/mm.h>
 #include <tools/common.h>
 
@@ -7,36 +8,6 @@ static u64 highest_page;
 size_t bitmap_size;
 u64 last_free_page = 0;
 
-static inline u64 get_bitmap_array_index(u64 page_addr)
-{
-    return page_addr / 8;
-}
-
-static inline u64 get_bitmap_bit_index(u64 page_addr)
-{
-    return page_addr % 8;
-}
-
-static inline bool bitmap_is_bit_set(u64 page_addr)
-{
-    u64 bit = get_bitmap_bit_index(page_addr);
-    u64 byte = get_bitmap_array_index(page_addr);
-    return bitmap[byte] & (1 << bit);
-}
-
-static inline void bitmap_set_bit(u64 page_addr)
-{
-    u64 bit = get_bitmap_bit_index(page_addr);
-    u64 byte = get_bitmap_array_index(page_addr);
-    bitmap[byte] |= (1 << bit);
-}
-
-static inline void bitmap_clear_bit(u64 page_addr)
-{
-    u64 bit = get_bitmap_bit_index(page_addr);
-    u64 byte = get_bitmap_array_index(page_addr);
-    bitmap[byte] &= ~(1 << bit);
-}
 
 void pmm_init(struct stivale2_struct_tag_memmap *memory_map)
 {
@@ -84,7 +55,7 @@ bitmap_allocated:;
         for (u64 addr = memory_map->memmap[i].base; addr < memory_map->memmap[i].base + memory_map->memmap[i].length;
              addr += PAGE_SIZE)
         {
-            bitmap_clear_bit(ADDR_PFN(addr));
+            bitmap_clear_bit(bitmap, ADDR_PFN(addr));
             free_memory += PAGE_SIZE;
         }
     }
@@ -93,7 +64,7 @@ bitmap_allocated:;
     u64 bitmap_end = bitmap_start + bitmap_size;
     for (u64 i = bitmap_start; i <= bitmap_end; i += PAGE_SIZE)
     {
-        bitmap_set_bit(ADDR_PFN(i));
+        bitmap_set_bit(bitmap, ADDR_PFN(i));
     }
     printk(" pmm -> Bitmap set up sucessfully, ready for allocations\n");
 }
@@ -110,7 +81,7 @@ u64 find_free_pages(u64 count)
             free_count = 0;
             i += 8 - (i % 8);
         }
-        if (!bitmap_is_bit_set(i))
+        if (!bitmap_is_bit_set(bitmap, i))
         {
             free_count++;
             if (free_count == count)
@@ -141,7 +112,7 @@ void *alloc_pages(u64 count)
     }
     for (u64 i = pfn; i < count + pfn; i++)
     {
-        bitmap_set_bit(i);
+        bitmap_set_bit(bitmap, i);
     }
     return PFN_ADDR(pfn);
 }
@@ -151,7 +122,7 @@ void free_pages(void *page_addr, u64 page_count)
     u64 target = ADDR_PFN(page_addr);
     for (u64 i = target; i <= target + page_count; i++)
     {
-        bitmap_clear_bit(i);
+        bitmap_clear_bit(bitmap, i);
     }
 }
 
