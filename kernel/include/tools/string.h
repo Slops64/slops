@@ -1,7 +1,7 @@
 #ifndef STRING_H
 #define STRING_H
 
-#include <types.h>
+#include <misc/types.h>
 
 size_t strlen(char *str);
 int strcmp(char *str1, char *str2);

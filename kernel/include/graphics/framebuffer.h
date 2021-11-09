@@ -1,8 +1,8 @@
 #ifndef FB_H
 #define FB_H
-#include <types.h>
-#include <common.h>
-#include <stivale2.h>
+#include <misc/types.h>
+#include <tools/common.h>
+#include <boot/stivale2.h>
 
 struct framebuffer_pixel
 {

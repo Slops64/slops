@@ -1,8 +1,8 @@
 #ifndef CONSOLE_H
 #define CONSOLE_H
 
-#include <types.h>
-#include <stivale2.h>
+#include <misc/types.h>
+#include <boot/stivale2.h>
 
 // printk helpers
 #define KERN_INFO "INFO: "

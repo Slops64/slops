@@ -1,10 +1,11 @@
-#include <mm.h>
-#include <common.h>
+#include <mm/mm.h>
+#include <tools/common.h>
 
 struct heap_slice *heap_start;
 
 // NOTE: len refers to the size of the whole slice including the host struct
-struct heap_slice *init_slice(struct heap_slice *s, u64 len, struct heap_slice *next)
+struct heap_slice *init_slice(struct heap_slice *s, u64 len,
+			      struct heap_slice *next)
 {
 	s->magic = SLICE_MAGIC;
 	s->next = next;
@@ -20,8 +21,7 @@ void track_region(void *start, u64 len)
 	// called for the first time
 	if (!heap_start)
 		heap_start = init_slice(start, len, NULL);
-	else
-	{
+	else {
 		while (last->next)
 			last = last->next;
 
@@ -52,8 +52,7 @@ void *kmalloc(u64 len)
 	struct heap_slice *slice = heap_start;
 	struct heap_slice *new_slice;
 
-	while (slice)
-	{
+	while (slice) {
 		check_slice(slice);
 		if (slice->len < len)
 			goto next;
@@ -61,28 +60,29 @@ void *kmalloc(u64 len)
 		if (slice->len == len)
 			return get_slice(slice)->buf;
 
-		if (slice->len > len)
-		{
+		if (slice->len > len) {
 			// split the slice
-			if (slice->len - len >= MIN_SLICE_SIZE)
-			{
-				new_slice = init_slice((struct heap_slice *)(slice->buf + len), slice->len - len, slice->next);
+			if (slice->len - len >= MIN_SLICE_SIZE) {
+				new_slice =
+				    init_slice((struct heap_slice *)(slice->
+								     buf + len),
+					       slice->len - len, slice->next);
 
 				slice->len = len;
 				slice->next = new_slice;
 
 				return get_slice(slice)->buf;
-			}
-			else
+			} else
 				return slice->buf;
 		}
 
-	next:
+next:
 		slice = slice->next;
 	}
-
-	// we should have been returned at this point
-	PANIC("out of memory");
+	track_region(alloc_pages(ALIGN_UP(len) / PAGE_SIZE), ALIGN_UP(len));
+	
+	// retry again
+	return kmalloc(len);
 }
 
 void kfree(void *p)
@@ -94,8 +94,7 @@ void kfree(void *p)
 	put_slice(s);
 
 	// check the possiblity of merge with next
-	if (s->next && !s->next->used)
-	{
+	if (s->next && !s->next->used) {
 		s->next = s->next->next;
 		s->len += s->next->len + sizeof(struct heap_slice);
 	}

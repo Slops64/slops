@@ -1,11 +1,11 @@
-#include <idt.h>
-#include <common.h>
+#include <cpu/idt.h>
+#include <tools/common.h>
 
 extern u64 __interrupt_vector[];
 struct idt_ent idt[IDT_ENTRY_COUNT];
 struct idt_desc idt_descriptor = {
 	.limit = sizeof(idt) - 1,
-	.base = (u64)&idt[0],
+	.base = (u64) & idt[0],
 };
 
 isr_t interrupt_vector[IDT_ENTRY_COUNT];
@@ -30,16 +30,16 @@ void idt_init()
 		idt[i] = construct_idt_ent(__interrupt_vector[i], 0, INTGATE);
 
 	idt[127] = construct_idt_ent(__interrupt_vector[48], 0, INTGATE);
-	idt[128] = construct_idt_ent(__interrupt_vector[49], 0, INTGATE | IDT_USER);
+	idt[128] =
+	    construct_idt_ent(__interrupt_vector[49], 0, INTGATE | IDT_USER);
 
-	idt_flush((u64)&idt_descriptor);
+	idt_flush((u64) & idt_descriptor);
 }
 
 // This gets called from our ASM interrupt handler stub.
 void interrupts_handler(struct registers *regs)
 {
-	if (interrupt_vector[regs->int_no] != 0)
-	{
+	if (interrupt_vector[regs->int_no] != 0) {
 		isr_t handler = interrupt_vector[regs->int_no];
 		handler(regs);
 	}
