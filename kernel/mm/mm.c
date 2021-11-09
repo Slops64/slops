@@ -79,9 +79,10 @@ void *kmalloc(u64 len)
 next:
 		slice = slice->next;
 	}
-
-	// we should have been returned at this point
-	PANIC("out of memory");
+	track_region(alloc_pages(ALIGN_UP(len) / PAGE_SIZE), ALIGN_UP(len));
+	
+	// retry again
+	return kmalloc(len);
 }
 
 void kfree(void *p)

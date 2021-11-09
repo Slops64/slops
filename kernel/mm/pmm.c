@@ -20,7 +20,7 @@ void pmm_init(struct stivale2_struct_tag_memmap *memory_map)
 		ASSERT(memory_map->memmap[i].base % PAGE_SIZE == 0);
 		u64 top =
 		    memory_map->memmap[i].base + memory_map->memmap[i].length;
-		if (top < highest_page) {
+		if (top > highest_page) {
 			highest_page = top;
 		}
 	}
@@ -92,7 +92,7 @@ u64 find_free_pages(u64 count)
 void *alloc_pages(u64 count)
 {
 	u64 pfn = find_free_pages(count);
-	if (pfn == (u64) - 1) {
+	if (pfn == (u64) -1) {
 		PANIC("Cannot allocate pages");
 	}
 	for (u64 i = pfn; i < count + pfn; i++) {

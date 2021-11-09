@@ -40,14 +40,13 @@ void _start(struct stivale2_struct *stivale2_struct)
 			printk("usable memory = %x length = %x\n",
 			       memmap->memmap[i].base,
 			       memmap->memmap[i].length);
-			track_region((void *)memmap->memmap[i].base,
-				     memmap->memmap[i].length);
 		}
+
+	pmm_init(memmap);
 
 	gdt_init();
 	idt_init();
 
-	pmm_init(memmap);
 	do_tests();
 
 	// We're done, just hang...
