@@ -1,0 +1,6 @@
+- Write a virtual memory manager that can map, remap and unmap pages
+- Start parsing ACPI tables in order to get informations about the APIC
+- Set up the APIC 
+- Make use of multiple CPUs
+- Configure a timer
+- Write a scheduler
