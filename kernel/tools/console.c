@@ -357,6 +357,15 @@ static u16 pitch;
 static int x_pos;
 static int y_pos;
 
+static int fg_color = DEFAULT_FG_COLOR;
+static int bg_color = DEFAULT_BG_COLOR;
+
+static inline void set_color(u32 fg, u32 bg)
+{
+	fg_color = fg;
+	bg_color = bg;
+}
+
 static void putpixel(int x, int y, u32 color)
 {
 	fb[y*(pitch/sizeof(u32))+x] = color;
@@ -476,9 +485,9 @@ void putc(char c)
 	for (int i = 0; i < 16; i++) {
 		for (int j = 7 /*8-1*/; j >= 0; j--) {
 			if (glyph[i] & (1 << j))
-				putpixel(x_pix++, y_pix, FG_COLOR);
+				putpixel(x_pix++, y_pix, fg_color);
 			else
-				putpixel(x_pix++, y_pix, BG_COLOR);
+				putpixel(x_pix++, y_pix, bg_color);
 		}
 		x_pix -= 8;
 		y_pix++;
@@ -499,7 +508,7 @@ void putc(char c)
 void clear_screen(void)
 {
     for (u32 i = 0; i < width * pitch / sizeof(u32); i++) {
-        fb[i] = BG_COLOR;
+        fb[i] = bg_color;
     }
     x_pos = 0;
     y_pos = 0;
@@ -509,28 +518,41 @@ void klog(enum log_level level, const char *module, const char *fmt, ...)
 {
 	switch (level) {
 		case KERN_INFO:
-			puts("[INFO] ");
+			set_color(0x45ff45, DEFAULT_BG_COLOR);
+			puts("[INFO]");
+			set_color(DEFAULT_FG_COLOR, DEFAULT_BG_COLOR);
 			break;
 		case KERN_WARN:
-			puts("[WARN] ");
+			set_color(0xffaf2e, DEFAULT_BG_COLOR);
+			puts("[WARN]");
+			set_color(DEFAULT_FG_COLOR, DEFAULT_BG_COLOR);
 			break;
 		case KERN_ERR:
-			puts("[ERROR] ");
+			set_color(0xff4242, DEFAULT_BG_COLOR);
+			puts("[ERROR]");
+			set_color(DEFAULT_FG_COLOR, DEFAULT_BG_COLOR);
 			break;
 		case KERN_EMERG:
-			puts("[EMERG] ");
+			set_color(DEFAULT_FG_COLOR, 0xff0015);
+			puts("[EMERG]");
+			set_color(DEFAULT_FG_COLOR, DEFAULT_BG_COLOR);
 			break;
 		case KERN_DEBUG:
-			puts("[DEBUG] ");
+			set_color(0x00aaff, DEFAULT_BG_COLOR);
+			puts("[DEBUG]");
+			set_color(DEFAULT_FG_COLOR, DEFAULT_BG_COLOR);
 			break;
 		default:
 			break;
 
 	}
+	putc(' ');
 	if (module) {
+		set_color(0xffdb66, DEFAULT_BG_COLOR);
 		puts(module);
 	}
 	puts(": ");
+	set_color(DEFAULT_FG_COLOR, DEFAULT_BG_COLOR);
 	__builtin_va_list vl;
 	__builtin_va_start(vl, fmt);
 	printk(fmt, vl);

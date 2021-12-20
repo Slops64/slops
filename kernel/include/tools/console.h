@@ -22,8 +22,8 @@ enum log_level {
 #define pr_emerg(fmt, ...) printk(EMERG fmt "\n", ##__VA_ARGS__)
 
 // Default colors:
-#define FG_COLOR 0xffffff
-#define BG_COLOR 0x000000
+#define DEFAULT_FG_COLOR 0xffffff
+#define DEFAULT_BG_COLOR 0x000000
 
 void init_console(u64 fb_addr, u16 fb_width, u16 fb_height, u16 fb_pitch);
 void putc(char c);
