@@ -20,7 +20,9 @@ void _start(struct stivale2_struct *stivale2_struct)
 	init_console(fb_tag->framebuffer_addr, fb_tag->framebuffer_width,
 			fb_tag->framebuffer_height, fb_tag->framebuffer_pitch);
 	puts("Welcome to Slops\n");
+	#ifdef DEBUG
 	klog(KERN_DEBUG, "test", "Hello world");
+	#endif
 	print_mem(memmap);
 	pmm_init(memmap);
 	gdt_init();

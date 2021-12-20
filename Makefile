@@ -16,6 +16,13 @@ else
 	SILENCE = @
 endif
 
+ifneq ($(DEBUG),)
+  COMMON_CFLAGS     += -g -DDEBUG
+else
+  COMMON_CFLAGS     += -DNDEBUG -Os
+endif
+
+
 SHOW_COMMAND	:= @printf "%-15s%s\n"
 SHOW_CC		:= $(SHOW_COMMAND) "[ $(CC) ]"
 SHOW_LD		:= $(SHOW_COMMAND) "[ $(LD) ]"
@@ -37,6 +44,7 @@ LDFLAGS := 	-nostdlib              	\
 			-Tlinker.ld
 
 CFLAGS := 	-ffreestanding 							\
+		$(COMMON_CFLAGS)	\
 			-fno-stack-protector 					\
 			-fpie                					\
 			-c 										\
@@ -50,7 +58,7 @@ CFLAGS := 	-ffreestanding 							\
 			-MMD 									\
 			-Werror 								\
 			-fno-builtin							\
-			-nostdlib								
+			-nostdlib
 
 LIMINE_DIR := limine
 LIMINE := $(LIMINE_DIR)/limine-install

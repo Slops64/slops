@@ -25,6 +25,10 @@ source ./toolchain/setup.sh
 ```bash
 make
 ```
+And if you want to enable debug:
+```bash
+make DEBUG=1
+```
 
 ## Boot the system
 
