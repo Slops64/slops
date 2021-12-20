@@ -5,3 +5,4 @@ kernel.elf
 **/*.d
 limine
 .vscode
+**/*.tar.xz
