@@ -4,6 +4,21 @@
 
 static u8 stack[8192];
 
+// We are now going to define a framebuffer header tag.
+// This tag tells the bootloader that we want a graphical framebuffer instead
+// of a CGA-compatible text mode. Omitting this tag will make the bootloader
+// default to text mode, if available.
+static struct stivale2_header_tag_framebuffer framebuffer_hdr_tag = {
+    // Same as above.
+    .tag = {
+        .identifier = STIVALE2_HEADER_TAG_FRAMEBUFFER_ID,
+        .next = 0
+    },
+    .framebuffer_width  = 0,
+    .framebuffer_height = 0,
+    .framebuffer_bpp    = 32
+};
+
 __section(".stivale2hdr")
 __used static struct stivale2_header stivale_hdr = {
 	// use elf entry point
@@ -17,7 +32,7 @@ __used static struct stivale2_header stivale_hdr = {
 	// segments.
 	.flags = (1 << 0) | (1 << 1),
 	//.flags = (1 << 1) | (1 << 2),
-	// no tags specified to force text mode
+	.tags = (u64) &framebuffer_hdr_tag
 };
 
 // search for a tag
