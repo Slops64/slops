@@ -19,6 +19,9 @@ jobs:
       
     - name: Clean
       run: make distclean
+    
+    - name: Toolchain
+      run: source ./toolchain/setup.sh
       
     - name: Build
       run: make -j2
