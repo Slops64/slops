@@ -21,19 +21,11 @@ enum log_level {
 #define pr_err(fmt, ...) printk(ERR fmt "\n", ##__VA_ARGS__)
 #define pr_emerg(fmt, ...) printk(EMERG fmt "\n", ##__VA_ARGS__)
 
-// VGA IO
-#define PORT_VGA_CMD	0x3D4
-#define PORT_VGA_DATA	0x3D5
-#define CMD_VGA_LOW		15
-#define CMD_VGA_HIGH	14
+// Default colors:
+#define DEFAULT_FG_COLOR 0xffffff
+#define DEFAULT_BG_COLOR 0x000000
 
-#define VGA_COLOR_BLACK	0
-#define VGA_COLOR_WHITE	15
-#define COLOR(fg, bg) ((fg << 4) | (bg & 0x0f))
-#define DEFAULT_COLOR_SCHEME COLOR(VGA_COLOR_BLACK, VGA_COLOR_WHITE)
-#define VGA_CHAR(c) ((DEFAULT_COLOR_SCHEME << 8) | c)
-
-void init_console(struct stivale2_struct_tag_textmode *);
+void init_console(u64 fb_addr, u16 fb_width, u16 fb_height, u16 fb_pitch);
 void putc(char c);
 void puts(const char *str); void clear_screen(void);
 void printk(const char *fmt, ...);
