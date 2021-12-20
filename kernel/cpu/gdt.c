@@ -1,4 +1,5 @@
 #include <cpu/gdt.h>
+#define MODULE_NAME "gdt"
 
 struct gdt_ent construct_gdt64_ent(u32 base, u32 limit, u8 granularity,
 				   u8 flags)
@@ -73,4 +74,5 @@ void gdt_init()
 	gdt.tss = construct_gdt_tss((u64) & tss);
 
 	gdt_flush((u64) & gdt_descriptor);
+	klog(KERN_INFO, MODULE_NAME, "GDT properly set");
 }

@@ -21,34 +21,16 @@ void _start(struct stivale2_struct *stivale2_struct)
 	// struct stivale2_struct_tag_framebuffer *fb_tag =
 	// stivale2_get_tag(stivale2_struct, STIVALE2_STRUCT_TAG_FRAMEBUFFER_ID);
 
-	if (memmap == NULL) {
-		PANIC
-		    ("stivale2_struct_tag_memmap expected but not been recieved");
-	}
-	// if (fb_tag == NULL)
-	//{
-	//  PANIC("Framebuffer structure tag not recieved");
-	// }
-
-	// Let's get the address of the terminal write function.
 	init_console(console);
-	// init_fb(fb_tag);
-	// set_bg(12, 5, 59);
-
-	for (u64 i = 0; i < memmap->entries; i++)
-		if (memmap->memmap[i].type == STIVALE2_MMAP_USABLE) {
-			printk("usable memory = %x length = %x\n",
-			       memmap->memmap[i].base,
-			       memmap->memmap[i].length);
-		}
-
+	puts("Welcome to Slops\n");
+	klog(KERN_INFO, "test", "Hello world");
+	print_mem(memmap);
 	pmm_init(memmap);
-
 	gdt_init();
 	idt_init();
-
 	do_tests();
 
+	klog(KERN_EMERG, "kernel", "End of kernel...");
 	// We're done, just hang...
 	hlt();
 }

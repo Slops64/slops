@@ -7,6 +7,7 @@ static u8 *bitmap;
 static u64 highest_page;
 size_t bitmap_size;
 u64 last_free_page = 0;
+#define MODULE_NAME "pmm"
 
 void pmm_init(struct stivale2_struct_tag_memmap *memory_map)
 {
@@ -36,7 +37,7 @@ void pmm_init(struct stivale2_struct_tag_memmap *memory_map)
 			goto bitmap_allocated;
 		}
 	}
-	printk("Unable to allocate %d bytes for the bitmap\n", bitmap_size);
+	klog(KERN_ERR, MODULE_NAME, "Unable to allocate %d bytes for the bitmap", bitmap_size);
 	PANIC("Could not allocate the bitmap");
 bitmap_allocated:;
 	u64 free_memory = 0;
@@ -59,7 +60,7 @@ bitmap_allocated:;
 	for (u64 i = bitmap_start; i <= bitmap_end; i += PAGE_SIZE) {
 		bitmap_set_bit(bitmap, ADDR_PFN(i));
 	}
-	printk(" pmm -> Bitmap set up sucessfully, ready for allocations\n");
+	klog(KERN_INFO, MODULE_NAME, "Bitmap set up sucessfully, ready for allocations");
 }
 
 // TODO: refactor this

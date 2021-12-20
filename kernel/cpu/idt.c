@@ -1,5 +1,6 @@
 #include <cpu/idt.h>
 #include <tools/common.h>
+#define MODULE_NAME "idt"
 
 extern u64 __interrupt_vector[];
 struct idt_ent idt[IDT_ENTRY_COUNT];
@@ -34,6 +35,7 @@ void idt_init()
 	    construct_idt_ent(__interrupt_vector[49], 0, INTGATE | IDT_USER);
 
 	idt_flush((u64) & idt_descriptor);
+	klog(KERN_INFO, MODULE_NAME, "IDT properly set up");
 }
 
 // This gets called from our ASM interrupt handler stub.

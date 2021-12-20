@@ -5,14 +5,21 @@
 #include <boot/stivale2.h>
 
 // printk helpers
-#define KERN_INFO "INFO: "
-#define KERN_WARN "WARN: "
-#define KERN_ERR "ERR: "
-#define KERN_EMERG "EMERG: "
-#define pr_info(fmt, ...) printk(KERN_INFO fmt "\n", ##__VA_ARGS__)
-#define pr_warn(fmt, ...) printk(KERN_WARN fmt "\n", ##__VA_ARGS__)
-#define pr_err(fmt, ...) printk(KERN_ERR fmt "\n", ##__VA_ARGS__)
-#define pr_emerg(fmt, ...) printk(KERN_EMERG fmt "\n", ##__VA_ARGS__)
+#define INFO "INFO: "
+#define WARN "WARN: "
+#define ERR "ERR: "
+#define EMERG "EMERG: "
+enum log_level {
+	KERN_INFO,
+	KERN_WARN,
+	KERN_ERR,
+	KERN_EMERG,
+	KERN_DEBUG
+};
+#define pr_info(fmt, ...) printk(INFO fmt "\n", ##__VA_ARGS__)
+#define pr_warn(fmt, ...) printk(WARN fmt "\n", ##__VA_ARGS__)
+#define pr_err(fmt, ...) printk(ERR fmt "\n", ##__VA_ARGS__)
+#define pr_emerg(fmt, ...) printk(EMERG fmt "\n", ##__VA_ARGS__)
 
 // VGA IO
 #define PORT_VGA_CMD	0x3D4
@@ -28,8 +35,8 @@
 
 void init_console(struct stivale2_struct_tag_textmode *);
 void putc(char c);
-void puts(char *str);
-void clear_screen(void);
+void puts(const char *str); void clear_screen(void);
 void printk(const char *fmt, ...);
+void klog(enum log_level level, const char *module, const char *fmt, ...);
 
 #endif // CONSOLE_H

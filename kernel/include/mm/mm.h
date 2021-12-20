@@ -31,6 +31,7 @@ struct heap_slice {
 	char buf[];
 };
 
+void print_mem(struct stivale2_struct_tag_memmap *memmap);
 void track_region(void *start, u64 len);
 void *kmalloc(u64 len);
 void kfree(void *p);

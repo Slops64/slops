@@ -95,7 +95,7 @@ void printk(const char *fmt, ...)
 	puts(buffer);
 }
 
-void puts(char *str)
+void puts(const char *str)
 {
 	if (!vidmem)
 		return;
@@ -202,3 +202,39 @@ void clear_screen(void)
 	y = 0;
 	update_cursor();
 }
+
+void klog(enum log_level level, const char *module, const char *fmt, ...)
+{
+	switch (level) {
+		case KERN_INFO:
+			puts("[INFO] ");
+			break;
+		case KERN_WARN:
+			puts("[WARN] ");
+			break;
+		case KERN_ERR:
+			puts("[ERROR] ");
+			break;
+		case KERN_EMERG:
+			puts("[EMERG] ");
+			break;
+		case KERN_DEBUG:
+			puts("[DEBUG] ");
+			break;
+		default:
+			break;
+
+	}
+	if (module) {
+		puts(module);
+	}
+	puts(": ");
+	__builtin_va_list vl;
+	__builtin_va_start(vl, fmt);
+	printk(fmt, vl);
+	__builtin_va_end(vl);
+	putc('\n');
+}
+
+
+

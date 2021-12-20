@@ -1,7 +1,20 @@
 #include <mm/mm.h>
 #include <tools/common.h>
 
+#define MODULE_NAME "mm"
 struct heap_slice *heap_start;
+
+void print_mem(struct stivale2_struct_tag_memmap *memmap)
+{
+	klog(KERN_INFO, MODULE_NAME, "Memory map->");
+	for (u64 i = 0; i < memmap->entries; i++) {
+		if (memmap->memmap[i].type == STIVALE2_MMAP_USABLE) {
+			printk(" | usable memory = %x length = %x\n",
+					memmap->memmap[i].base,
+					memmap->memmap[i].length);
+		}
+	}
+}
 
 // NOTE: len refers to the size of the whole slice including the host struct
 struct heap_slice *init_slice(struct heap_slice *s, u64 len,
@@ -80,7 +93,7 @@ next:
 		slice = slice->next;
 	}
 	track_region(alloc_pages(ALIGN_UP(len) / PAGE_SIZE), ALIGN_UP(len));
-	
+
 	// retry again
 	return kmalloc(len);
 }
