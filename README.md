@@ -8,7 +8,19 @@ slops is a simple unix-like operating system, written in assembly and C.
 
 ## Build iso image
 
-### 1. build
+### 1. build the toolchain (optional)
+
+```bash
+sudo ./toolchain/build.sh
+```
+
+### 2. make use of the toolchain
+
+```bash
+source ./toolchain/setup.sh
+```
+
+### 3. the actual build
 
 ```bash
 make
