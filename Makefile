@@ -1,14 +1,4 @@
-ISO_IMAGE 	:= slops.iso
-KERNEL 		:= kernel.elf
-
-ASMSOURCES  := $(shell find . -not \( -path './limine' -prune \) -type f -name '*.S')
-CSOURCES    := $(shell find . -not \( -path './limine' -prune \) -type f -name '*.c')
-HEADER_DEPS := $(CSOURCES:.c=.d)
-OBJ         := $(ASMSOURCES:.S=.o) $(CSOURCES:.c=.o)
-
-CC := gcc
-AS := $(CC)
-LD := ld
+include Makefile.config
 
 ifneq ($(V),)
 	SILENCE	=
@@ -21,44 +11,6 @@ ifneq ($(DEBUG),)
 else
   COMMON_CFLAGS     += -DNDEBUG -Os
 endif
-
-
-SHOW_COMMAND	:= @printf "%-15s%s\n"
-SHOW_CC		:= $(SHOW_COMMAND) "[ $(CC) ]"
-SHOW_LD		:= $(SHOW_COMMAND) "[ $(LD) ]"
-SHOW_INSTALL	:= $(SHOW_COMMAND) "[ INSTALL ]"
-SHOW_CLEAN	:= $(SHOW_COMMAND) "[ CLEAN ]"
-
-ASFLAGS := 	-I./kernel/include 		\
-			-m64			\
-			-c 				\
-			-g
-
-LDFLAGS := 	-nostdlib              	\
-			-zmax-page-size=0x1000 	\
-			-static                	\
-			--no-dynamic-linker    	\
-			-ztext					\
-			--oformat elf64-x86-64	\
-			-m elf_x86_64			\
-			-Tlinker.ld
-
-CFLAGS := 	-ffreestanding 							\
-		$(COMMON_CFLAGS)	\
-			-fno-stack-protector 					\
-			-fpie                					\
-			-c 										\
-			-m64 									\
-			-I./kernel/include 						\
-			-Wall 									\
-			-Wextra 								\
-			-Wstrict-prototypes 					\
-			-O0 									\
-			-g 										\
-			-MMD 									\
-			-Werror 								\
-			-fno-builtin							\
-			-nostdlib
 
 LIMINE_DIR := limine
 LIMINE := $(LIMINE_DIR)/limine-install

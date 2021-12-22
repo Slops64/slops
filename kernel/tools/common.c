@@ -7,6 +7,11 @@ void outb(u16 port, u8 value)
 	asm volatile ("outb %1, %0"::"dN" (port), "a"(value));
 }
 
+void outw(u16 port, u16 value)
+{
+	asm volatile ("outw %1, %0"::"dN" (port), "a"(value));
+}
+
 u8 inb(u16 port)
 {
 	u8 ret;
