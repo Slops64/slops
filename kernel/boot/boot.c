@@ -7,7 +7,6 @@
 #include <tools/common.h>
 #include <tools/console.h>
 #include <tools/string.h>
-#include <tools/unistd.h>
 
 extern void *stivale2_get_tag(struct stivale2_struct *stivale2_struct, u64 id);
 
